@@ -41,6 +41,13 @@ class FaceClustering:
         self.alignFace = args.align
         self.resizeRatio = args.resizeratio
 
+        if self.register:
+
+            dirPath = os.getcwd() + '/faces'
+            if os.path.isdir(dirPath) is True:
+                shutil.rmtree(dirPath)    
+            os.mkdir(dirPath)
+
     def bBox2rect(self, bbox):
         """
             Converts bbox[x,y,w,h] to Dlib rect[top right bottom left]
