@@ -44,13 +44,28 @@ class FaceClustering:
 
     def bBox2rect(self, bbox):
         """
-            Converts bbox[x,y,w,h] to Dlib rect
+            Converts bbox[x,y,w,h] to Dlib rect[top right bottom left]
         """
         left = bbox[0]
         top = bbox[1]
         right = left + bbox[2]
         bottom = top + bbox[3] 
-        return dlib.rectangle(left, top, right, bottom) 
+        return dlib.rectangle(left, top, right, bottom)
+
+    def bBox2css(self, bbox, frameShape):
+        x, y, w, h = bbox
+        top = max(0, y)
+        right = min(frameShape[1], x+w)
+        bottom = min(frameShape[0], y+h)
+        left = max(0, x)
+        return top, right, bottom, left 
+
+    def ccs2bBox(self, ccs, frameShape):
+        x = max(0, ccs.left())
+        y = max(0, ccs.top())
+        w = min(frameShape[1], ccs.right()-ccs.left())
+        h = min(frameShape[0], ccs.bottom()-ccs.top())
+        return x, y, w, h
 
     def preProcessing(self, frame):
         """
@@ -78,7 +93,8 @@ class FaceClustering:
 
         faces = []
         for d in dets:
-            faces.append((d.left(), d.top(), d.right()-d.left(), d.bottom()-d.top()))
+            bbox = self.ccs2bBox(d, frame.shape)
+            faces.append(bbox)
 
         return faces, scores
 
@@ -112,7 +128,8 @@ class FaceClustering:
         faces = []
         confidence = []
         for d in dets:
-            faces.append((d.rect.left(), d.rect.top(), d.rect.right()-d.rect.left(), d.rect.bottom()-d.rect.top()))
+            bbox = self.ccs2bBox(d.rect, frame.shape)
+            faces.append(bbox)
             confidence.append(d.confidence)
 
         return faces, confidence
@@ -260,14 +277,6 @@ class FaceClustering:
             exit(1)
 
         return  classifier
-        
-    def faceRecognition(self, src):
-        """
-        Given multiple images this method returns face clusters
-        """
-        
-        
-        pass
 
     def videoSingleProcessDetection(self, frameNos, pbar):
         """
@@ -321,11 +330,12 @@ class FaceClustering:
                 framesToProcess = np.array_split(framesToProcess, self.nCpu)
                 threadPool = []
 
-                for i in range(0, self.nCpu):
+                for i in range(0, self.nCpu-1):
                     thread = Thread(target=self.videoSingleProcessDetection, args=(framesToProcess[i], pbar))
                     thread.start()
-                    print(f'Thread {i} is Started')
                     threadPool.append(thread)
+
+                self.videoSingleProcessDetection(framesToProcess[self.nCpu-1], pbar)
 
                 for thread in threadPool:
                     thread.join()   
@@ -364,13 +374,17 @@ class FaceClustering:
             self.encodings[i]["ID"] = clusters[i]
 
     def faceRecognitionSingleProcess(self, imagePaths, pbar):
-        
+
+        classifier = self.getClassifier()
+
         for (i, imagePath) in enumerate(imagePaths):
             image = cv2.imread(imagePath)
             rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-            boxes = face_recognition.face_locations(rgb)
-            encodings = face_recognition.face_encodings(rgb, boxes)
+            faces, _ = self.detectFaceframe(image, classifier) #[left top width height]
+            faces = [self.bBox2css(face, image.shape) for face in faces]    
+
+            encodings = face_recognition.face_encodings(rgb, faces)
             d = [{"imagePath": imagePath, "encoding": encoding} for encoding in encodings]
             if self.lock is not None:
                 self.lock.acquire()
@@ -392,11 +406,12 @@ class FaceClustering:
                 framesToProcess = np.array_split(imagePaths, self.nCpu)
                 threadPool = []
 
-                for i in range(0, self.nCpu):
+                for i in range(0, self.nCpu-1):
                     thread = Thread(target=self.faceRecognitionSingleProcess, args=(framesToProcess[i], pbar))
                     thread.start()
-                    print(f'Thread {i} is Started')
                     threadPool.append(thread)
+
+                self.faceRecognitionSingleProcess(framesToProcess[self.nCpu-1], pbar)
 
                 for thread in threadPool:
                     thread.join()   
@@ -405,11 +420,11 @@ class FaceClustering:
             self.faceRecognitionSingleProcess(imagePaths, pbar) 
 
         self.getClusters()
+        montage = None
 
         if self.register:
 
             parentPath = os.getcwd() + '/IDs'
-            uniqueIDs = set()
 
             if os.path.isdir(parentPath) is True:
                 shutil.rmtree('IDs')
@@ -417,18 +432,72 @@ class FaceClustering:
             os.mkdir(parentPath)
             os.mkdir(os.path.join(parentPath, 'UniqueIDs'))
             os.mkdir(os.path.join(parentPath, 'all'))
+            
+            uniqueIDs = dict()
 
             for face in self.encodings:
-                 uniqueIDs.add(face["ID"])
+                 uniqueIDs[face["ID"]] = list()
 
-            for i, ID in enumerate(uniqueIDs):
+            for ID in uniqueIDs.keys():
                 IDpath = os.path.join(parentPath + '/all', str(ID))
                 os.mkdir(IDpath)
-                
-                shutil.copyfile(face["imagePath"], f'IDs/UniqueIDs/{str(ID)}.jpg')  
 
             for i, face in enumerate(self.encodings):
-                shutil.copyfile(face["imagePath"], f'IDs/all/{face["ID"]}/{i}.jpg') 
+                uniqueIDs[face["ID"]].append(face["imagePath"])
+                shutil.copyfile(face["imagePath"], f'IDs/all/{face["ID"]}/{i}.jpg')
+
+            for ID, faces in uniqueIDs.items():
+                shutil.copyfile(faces[0], f'IDs/UniqueIDs/{str(ID)}.jpg')
+
+            
+            nCols = 1; nRows = 1; row = True
+            while (nRows * nCols) < len(uniqueIDs.keys()):
+                if row:
+                    nRows += 1
+                    row = False
+                else:
+                    nCols += 1
+                    row = True
+
+
+            IDs = list()
+            for IDPath in uniqueIDs.values():
+                image = cv2.imread(IDPath[0])
+                image = cv2.resize(image, (96, 96))
+                IDs.append(image)
+
+            montage = build_montages(IDs, (96, 96), (nRows,nCols))[0]
+            cv2.imwrite(f'IDs/motage.jpg', montage)
 
         if self.display:
-            pass
+            if montage is None:
+                uniqueIDs = dict()
+                for face in self.encodings:
+                    uniqueIDs[face["ID"]] = list()
+                for i, face in enumerate(self.encodings):
+                    uniqueIDs[face["ID"]].append(face["imagePath"])
+
+                nCols = 1; nRows = 1; row = True
+                while (nRows * nCols) < len(uniqueIDs.keys()):
+                    if row:
+                        nRows += 1
+                        row = False
+                    else:
+                        nCols += 1
+                        row = True
+
+                IDs = list()
+                for IDPath in uniqueIDs.values():
+                    image = cv2.imread(IDPath[0])
+                    image = cv2.resize(image, (96, 96))
+                    IDs.append(image)
+
+                montage = build_montages(IDs, (96, 96), (nRows,nCols))[0]
+            
+
+            cv2.imshow("Unique Faces", montage)
+            cv2.waitKey(0)
+
+            
+
+
