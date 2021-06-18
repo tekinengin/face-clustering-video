@@ -36,7 +36,7 @@ Input --> Preprocessing --> FaceDetection --> FaceLandmarks --> Face Alignment (
 
 ## Examples
 
-- Clustering with Alignment`python main.py --ctype 2 --ncpu 4 --video="src/sampleVideo.mp4" --pfps 0.33 -r -align`
+- Clustering with Alignment (Affine) `python main.py --ctype 2 --ncpu 4 --video="src/sampleVideo.mp4" --pfps 0.33 -r -align`
 
 ![aligned](https://raw.githubusercontent.com/tekinengin/face-clustering-video/main/examples/alignedmontage.jpg)
 
