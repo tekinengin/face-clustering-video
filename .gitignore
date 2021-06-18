@@ -1,8 +1,8 @@
 # Ignore Videos
-src/**
+*.mp4
 
 # Ignore Images
-faces/**
+*.jpg
 
 # Ignore Mac-OS files
 **/.DS_Store
