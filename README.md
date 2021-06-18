@@ -38,9 +38,9 @@ Input --> Preprocessing --> FaceDetection --> FaceLandmarks --> Face Alignment (
 
 - Clustering with Alignment`python main.py --ctype 2 --ncpu 4 --video="src/sampleVideo.mp4" --pfps 0.33 -r -align`
 
-![aligned](https://raw.githubusercontent.com/tekinengin/face-clustering-video/0cdce9a0893029f183a3b2553814973d5fe92f40/examples/alignedmontage.jpg)
+![aligned](https://raw.githubusercontent.com/tekinengin/face-clustering-video/main/examples/alignedmontage.jpg)
 
 - Clustering without Alignment :`python main.py --ctype 2 --ncpu 4 --video="src/sampleVideo.mp4" --pfps 0.33 -r`
 
-![nonaligned](https://raw.githubusercontent.com/tekinengin/face-clustering-video/0cdce9a0893029f183a3b2553814973d5fe92f40/examples/montage.jpg)
+![nonaligned](https://raw.githubusercontent.com/tekinengin/face-clustering-video/main/examples/montage.jpg)
 
