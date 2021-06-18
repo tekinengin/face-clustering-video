@@ -28,7 +28,7 @@ Input --> Preprocessing --> FaceDetection --> FaceLandmarks --> Face Alignment (
 - `--ncpu`  : Number of CPUs for multi-threading
 - `--cthreshold` : Threshold for face confidence
 - `--resizeratio` : Resize the Input with 1/resizeratio
-- `--pfps` : Processing F, Example 1 means Original Video 1 sn is 1 frame (Default Video Fps)
+- `--pfps` : Processing Fps, Example: skip *videoFps / pfps* frames (Default: Video Fps)
 - `-d`     : Display Option only for --ncpus 1
 - `-r`     : Saving Detected Faces and Clusters
 - `-e`     : Eye Detection Option

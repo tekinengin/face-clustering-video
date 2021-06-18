@@ -3,6 +3,7 @@
 
 # Ignore Images
 *.jpg
+!/examples/*
 
 # Ignore Mac-OS files
 .DS_Store

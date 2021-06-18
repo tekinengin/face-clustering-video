@@ -476,7 +476,7 @@ class FaceClustering:
                 IDs.append(image)
 
             montage = build_montages(IDs, (96, 96), (nRows,nCols))[0]
-            cv2.imwrite(f'IDs/motage.jpg', montage)
+            cv2.imwrite(f'IDs/montage.jpg', montage)
 
         if self.display:
             if montage is None:
