@@ -1,0 +1,11 @@
+# Ignore Videos
+*.mp4
+
+# Ignore Images
+*.jpg
+
+# Ignore Mac-OS files
+*.DS_Store
+
+# Ignore Big Models
+pre-trained/shape_predictor_68_face_landmarks.dat

@@ -15,6 +15,11 @@ Input --> Preprocessing --> FaceDetection --> FaceLandmarks --> Face Alignment -
 - Dlib CNN Face Detector Modelv1: [pre-trained/mmod_human_face_detector.dat](http://dlib.net/files/mmod_human_face_detector.dat.bz2)
 - Dlib 68 Points Face Landmarks: [pre-trained/shape_predictor_68_face_landmarks.dat](http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2)
 
+## Installation 
+
+ - `git clone https://github.com/tekinengin/face-clustering-video.git`
+ - `curl http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2 > pre-trained/shape_predictor_68_face_landmarks.dat.bz2 && bzip2 -d pre-trained/shape_predictor_68_face_landmarks.dat.bz2`
+ 
 ## Parameters
 
 - `--video` : Source Path
