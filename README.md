@@ -1,4 +1,4 @@
-# Face Clustering Video
+# Video Based Face Clustering
 
 This is a framework to detect unique faces in videos. 
 
