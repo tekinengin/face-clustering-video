@@ -2,7 +2,6 @@
 @author: Engin Tekin
 """
 
-from tqdm.auto import trange
 from enum import IntEnum
 import numpy as np
 from sklearn.cluster import DBSCAN
@@ -12,7 +11,6 @@ import shutil
 import cv2
 import dlib
 import face_recognition
-import pickle
 from tqdm.std import tqdm
 from threading import Lock, Thread
 
@@ -41,6 +39,7 @@ class FaceClustering:
 
         self.desiredLeftEye = (0.35, 0.35)
         self.alignFace = args.align
+        self.resizeRatio = args.resizeratio
 
     def bBox2rect(self, bbox):
         """
@@ -77,7 +76,10 @@ class FaceClustering:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) #Converting to Gray Image
         frame = cv2.equalizeHist(frame) #Equalizing the Image so that max pixel: 255, min pixel: 0 
     
-        #frame = cv2.resize(frame, ())
+        if self.resizeRatio != 1:
+            w = int(frame.shape[1] / self.resizeRatio)
+            h = int(frame.shape[0] / self.resizeRatio)
+            frame = cv2.resize(frame, (w, h)) 
 
         return frame
 

@@ -24,7 +24,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     faceCluster = imageprocessing.FaceClustering(args)
-    #faceCluster.detectFaces()
+    faceCluster.detectFaces()
     faceCluster.faceRecognition()
 
     cv2.destroyAllWindows()
