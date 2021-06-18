@@ -6,7 +6,7 @@ Built with [Dlib](http://dlib.net/)'s libraries. It is possible to use different
 
 ## Architecture
 
-Input --> Preprocessing --> FaceDetection --> FaceLandmarks --> Face Alignment --> Feature Encoder --> Clustering --> UniqueIDs
+Input --> Preprocessing --> FaceDetection --> FaceLandmarks --> Face Alignment (Affine) --> Feature Encoder --> Clustering --> UniqueIDs
 
 ## Pre-Trained Models
 
