@@ -1,11 +1,11 @@
 # Ignore Videos
-*.mp4
+src/**
 
 # Ignore Images
-*.jpg
+faces/**
 
 # Ignore Mac-OS files
-*.DS_Store
+**/.DS_Store
 __pycache__
 
 # Ignore Big Models
