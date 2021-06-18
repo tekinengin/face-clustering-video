@@ -363,7 +363,6 @@ class FaceClustering:
         for i in range(0, len(self.encodings)):
             self.encodings[i]["ID"] = clusters[i]
 
-
     def faceRecognitionSingleProcess(self, imagePaths, pbar):
         
         for (i, imagePath) in enumerate(imagePaths):
@@ -414,17 +413,22 @@ class FaceClustering:
 
             if os.path.isdir(parentPath) is True:
                 shutil.rmtree('IDs')
-                os.mkdir(parentPath)
+                
+            os.mkdir(parentPath)
+            os.mkdir(os.path.join(parentPath, 'UniqueIDs'))
+            os.mkdir(os.path.join(parentPath, 'all'))
 
             for face in self.encodings:
                  uniqueIDs.add(face["ID"])
 
-            for ID in uniqueIDs:
-                IDpath = os.path.join(parentPath, str(ID))
-                os.mkdir(IDpath)    
+            for i, ID in enumerate(uniqueIDs):
+                IDpath = os.path.join(parentPath + '/all', str(ID))
+                os.mkdir(IDpath)
+                
+                shutil.copyfile(face["imagePath"], f'IDs/UniqueIDs/{str(ID)}.jpg')  
 
             for i, face in enumerate(self.encodings):
-                shutil.copyfile(face["imagePath"], f'IDs/{face["ID"]}/{i}.jpg') 
+                shutil.copyfile(face["imagePath"], f'IDs/all/{face["ID"]}/{i}.jpg') 
 
         if self.display:
             pass
